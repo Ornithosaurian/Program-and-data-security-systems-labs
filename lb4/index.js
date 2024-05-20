@@ -6,6 +6,7 @@ const path = require('path');
 const port = 3000;
 const fs = require('fs');
 const axios = require('axios');
+const jwt = require('jsonwebtoken');
 
 const app = express();
 app.use(bodyParser.json());
@@ -114,9 +115,20 @@ app.post('/api/login', async (req, res) => {
             client_secret: 'AK4Kb3_sNfehx5oxZgxzx09o5KbieRQ9CgJBiB3apfHRbmJ6X5AGAjpCjBkieBm1'
         });
         const { access_token } = response.data; 
-        req.session.accessToken = access_token; 
-        req.session.username = login; 
-        res.json({ token: req.sessionId });
+
+        const publicKey = await axios.get('https://dev-aod4ob2bvys0bx6z.us.auth0.com/pem');
+        jwt.verify(access_token, publicKey.data, (err, decoded) => {
+            if (err) {
+                console.error('Token verification failed:', err);
+                return res.status(401).send('Token verification failed');
+            }
+
+            console.log('Decoded data:', decoded);
+
+            req.session.accessToken = access_token; 
+            req.session.username = login; 
+            res.json({ token: req.sessionId });
+        });
     }
     catch (error) { 
         if (error.response && error.response.data) {
@@ -127,6 +139,7 @@ app.post('/api/login', async (req, res) => {
         res.status(401).send('Authentication failed'); 
     }
 });
+
 
 app.listen(port, () => {
     console.log(`Example app listening on port ${port}`)
