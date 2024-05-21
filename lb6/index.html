@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login</title>
+</head>
+
+<body>
+    <main id="main-holder">
+        <a href="/logout" id="logout" style="display: none;">Logout</a>
+        <h1 id="login-header">Login</h1>
+        <div id="login-error-msg-holder">
+            <p id="login-error-msg" style="display: none;">Invalid username <span id="error-msg-second-line">and/or password</span></p>
+        </div>
+        <form id="login-form">
+            <input type="button" value="Login with Auth0" id="login-form-submit">
+        </form>
+    </main>
+
+    <style>
+        html {
+            height: 100%;
+        }
+
+        body {
+            height: 100%;
+            margin: 0;
+            font-family: Arial, Helvetica, sans-serif;
+            display: grid;
+            justify-items: center;
+            align-items: center;
+            background-color: #3a3a3a;
+        }
+
+        #main-holder {
+            width: 50%;
+            height: 70%;
+            display: grid;
+            justify-items: center;
+            align-items: center;
+            background-color: white;
+            border-radius: 7px;
+            box-shadow: 0px 0px 5px 2px black;
+        }
+    </style>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", () => {
+            const loginButton = document.getElementById("login-form-submit");
+            const logoutLink = document.getElementById("logout");
+            const loginHeader = document.getElementById("login-header");
+            const loginForm = document.getElementById("login-form");
+
+            fetch('/user')
+                .then(response => response.json())
+                .then(data => {
+                    if (data.username) {
+                        loginHeader.textContent = `Hi ${data.username}`;
+                        loginForm.style.display = 'none';
+                        logoutLink.style.display = 'block';
+                    }
+                })
+                .catch(err => {
+                    console.error('Error fetching user data:', err);
+                });
+
+            loginButton.addEventListener("click", () => {
+                window.location.href = '/login';
+            });
+        });
+    </script>
+</body>
+
+</html>
